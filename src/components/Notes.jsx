@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import NoteCard from './NoteCard.jsx'
 
 const startingNotes = [
@@ -24,18 +24,17 @@ function Notes() {
   const [search, setSearch] = useState('')
   const titleRef = useRef(null)
 
-
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes))
   }, [notes])
 
-    useEffect(() => {
+  useEffect(() => {
     const id = setTimeout(() => {
       localStorage.setItem('draft', JSON.stringify(form))
     }, 1000)
     return () => clearTimeout(id)
   }, [form])
-  
+
   function handleChange(event) {
     const { name, value } = event.target
     setForm({ ...form, [name]: value })
@@ -60,9 +59,11 @@ function Notes() {
     setNotes(notes.filter((note) => note.id !== id))
   }
 
-  const visibleNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(search.toLowerCase())
-  )
+  const visibleNotes = useMemo(() => {
+    return notes.filter((note) =>
+      note.title.toLowerCase().includes(search.toLowerCase())
+    )
+  }, [notes, search])
 
   return (
     <div className="grid min-h-screen grid-cols-[420px_1fr]">
